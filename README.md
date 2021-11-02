@@ -1,1 +1,1 @@
-# LFA---Gram-tica-Identificadora-de-Linguagem
+# LFA Gramática Identificadora de Linguagem
