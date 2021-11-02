@@ -25,8 +25,13 @@ int main(int argc, char **argv){
 
 void monta_simbolo(FILE *arq){
     char c;
-    for(c = getc(arq); c != EOF ;){
-        i++;
+    c = getc(arq);
+    while( c != EOF){
+       
+
+
+
+       c = getc(arq);
     }
 
 }
