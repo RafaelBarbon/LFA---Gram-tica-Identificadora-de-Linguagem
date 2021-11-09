@@ -1,3 +1,9 @@
 main(){
-    
-}
+    int james;
+    james =1;
+    james = james - juana;
+    printf(jaime);
+    dxczcsdssacdscdcccd  123
+    scanf(fael);
+} 
+

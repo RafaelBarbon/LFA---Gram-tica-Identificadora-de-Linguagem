@@ -18,7 +18,7 @@ bool Vazia(Lista *l){
 
 // Inserção de elementos no início da lista
 void Insere(Lista **l, char *v){
-    Lista *novo = malloc(sizeof(Lista));
+    Lista *novo = malloc(sizeof(Lista)), *aux = *l;
     if(!novo){
         printf("Erro: armazenamento insuficiente para alocar");
         exit(1);
@@ -29,8 +29,17 @@ void Insere(Lista **l, char *v){
         exit(1);
     }
     strcpy(novo->string,v);
-    novo->prox = (*l);
-    (*l) = novo;
+    if(!(*l)){
+        novo->prox = NULL;
+        *l = novo;
+    }
+    else{
+        while(aux->prox != NULL){
+            aux = aux->prox;
+        }
+        novo->prox = aux->prox;
+        aux->prox = novo;
+    }
 }
 
 // Retirar elemento da lista a partir da posição fornecida
