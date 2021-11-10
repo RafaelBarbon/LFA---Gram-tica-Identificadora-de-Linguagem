@@ -3,9 +3,11 @@
 #include <stdlib.h>
 #include <stdbool.h>
 #include "lista.h"
-#define MAX 50
 
+// Função responsável por ler todo o arquivo e retornar uma lista com os símbolos encontrados
 Lista* monta_simbolo(FILE *arq);
+// Função que verifica a lista de palavras de acordo com a gramática
+bool valida(Lista *simbolos);
 
 int main(int argc, char **argv){
     if(argc < 1){ // Caso não haja o nome de arquivo como parâmetro
@@ -21,20 +23,24 @@ int main(int argc, char **argv){
         exit(0);
     }
     palavras = monta_simbolo(arq);
+    Imprime(palavras); // Para testes
+    printf("\n");
     printf("%s", valida(palavras) ? "Aceito" : "Recusado");
-    //Imprime(palavras); // Para testes
+    printf("\n");
     fclose(arq);
     Libera(&palavras);
     return 0;
 }
 
+// Função que verifica a lista de palavras de acordo com a gramática
 bool valida(Lista *simbolos){
     Lista *simbolo = simbolos;
-    if(simbolo && !(strcmp(simbolo->string,main))){ // Conferência do main(){
+    if(simbolo && !(strcmp(simbolo->string,"main"))){ // Conferência do main(){
         simbolo = simbolo->prox;
-        if(simbolo && !(strcmp(simbolo->string,"(" ))){
+        if(simbolo && !(strcmp(simbolo->string, "("))){
             simbolo = simbolo->prox;
             if(simbolo && !(strcmp(simbolo->string, ")"))){
+                simbolo = simbolo->prox;
                 if(simbolo && !(strcmp(simbolo->string, "{"))){
                     simbolo = simbolo->prox;
                 }else return false;
@@ -42,13 +48,54 @@ bool valida(Lista *simbolos){
         }else return false;
     }else return false;
 
-    while(simbolo && simbolo->string != "}"){ // Caso algum dos 4 tipos de comandos
-      //  if(simbolo == ){ // Caso
-
-       // }
-
+    while(simbolo && strcmp(simbolo->string, "}") != 0){ // Caso algum dos 4 tipos de comandos
+        if(!strcmp(simbolo->string,"?")){ // Caso seja um símbolo não mapeado
+            return false;
+        }else if(!strcmp(simbolo->string,"int")){ // Caso declaração de variáveis
+            simbolo = simbolo->prox;
+            while(simbolo && !strcmp(simbolo->string,"id") && (strcmp(simbolo->string,";") != 0)){ // Confere o próximo identificador ou o final da declaração
+                simbolo = simbolo->prox;
+                if(simbolo && !strcmp(simbolo->string,",")){ // Confere se há uma próxima variável
+                    simbolo = simbolo->prox;
+                    if(simbolo && !strcmp(simbolo->string,";")) // Verifica se termina sem o identificador
+                        return false;
+                }
+            }
+        }else if(!strcmp(simbolo->string,"printf") || !strcmp(simbolo->string,"scanf")){ // Caso seja impressão ou coleta de valor de variável
+            simbolo = simbolo->prox;
+            if(simbolo && !strcmp(simbolo->string,"(")){
+                simbolo = simbolo->prox;
+                if(simbolo && !strcmp(simbolo->string,"id")){
+                    simbolo = simbolo->prox;
+                    if(simbolo && !strcmp(simbolo->string,")")){
+                        simbolo = simbolo->prox;
+                        if(simbolo && !strcmp(simbolo->string,";"))
+                            simbolo = simbolo->prox;
+                            continue;
+                    }else{
+                        return false;
+                    }
+                }else{
+                    return false;
+                }
+            }else{
+                return false;
+            }
+        }
+        //else if(){ // Caso seja uma expressão (,),+,-,*,/,id,num
+            //id=...;
+            // Criar pilha para considerar o balanceamento dos parênteses
+            // ... => (,),+,-,*,/,id,num
+        //}
+        if(!simbolo){
+            return false;
+        }
+        simbolo = simbolo->prox;
     }
-    
+    if(simbolo && !strcmp(simbolo->string,"}"))
+        return true;
+    else
+        return false;
 }
 
 // Função responsável por ler todo o arquivo e retornar uma lista com os símbolos encontrados
@@ -74,26 +121,21 @@ Lista* monta_simbolo(FILE *arq){
         if(flag){
             palavra[i] ^= palavra[i];
             i ^= i;
-            Insere(&l,palavra);//insere na lista
+            if((strcmp(palavra,"printf") == 0) || (strcmp(palavra,"scanf") == 0) || (strcmp(palavra,"int") == 0) || (strcmp(palavra,"main") == 0)){
+                Insere(&l,palavra);//insere na lista a palavra reservada
+                //printf("Inseriu: %s\t",palavra);
+            }
+            else
+                Insere(&l,"id");//insere na lista a variável
             flag = false;
             flagTI = true;
         }
-        while(c >= 48 && c <= 57){//cadeia de números
-            palavra = realloc(palavra,i+1);
-            if(!palavra){
-                printf("Erro: armazenamento insuficiente para alocar");
-                exit(1);
-            }
-
-            palavra[i++] = c;
-
+        while(c >= 48 && c <= 57){//cadeia de números (Apenas verifica se tem um conjunto de números ou um apenas um número (Nao importa qual é o numero, ou seja não precisa salvar os números))
             c = getc(arq);
             flag = true;
         }
         if(flag){
-            palavra[i] ^= palavra[i];
-            i ^= i;
-            Insere(&l,palavra);//insere na lista
+            Insere(&l,"num");//insere na lista o número
             flag = false;
             flagTI = true;
         }
@@ -157,14 +199,14 @@ Lista* monta_simbolo(FILE *arq){
             flagTI = true;
         }
         if(!flagTI){
-            palavra = realloc("id",2);
+            palavra = realloc(palavra,2);
             if(!palavra){
                 printf("Erro: armazenamento insuficiente para alocar");
                 exit(1);
             }
-            palavra[0] = c;
+            palavra[0] = '?';
             palavra[1] = 0;
-            Insere(&l,"id");//insere na lista o caracter desconhecido#####VERIFICAAAA
+            Insere(&l,palavra);//insere na lista o caracter desconhecido
             c = getc(arq);
         }
         flagTI = false;

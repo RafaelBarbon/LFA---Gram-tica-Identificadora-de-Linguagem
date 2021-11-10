@@ -16,7 +16,7 @@ bool Vazia(Lista *l){
     return false;
 }
 
-// Inserção de elementos no início da lista
+// Inserção de elementos no final da lista
 void Insere(Lista **l, char *v){
     Lista *novo = malloc(sizeof(Lista)), *aux = *l;
     if(!novo){
@@ -69,7 +69,7 @@ int Busca(Lista *l, char *v){
     return -1;
 }
 
-// Impressão da lista
+// Impressão da lista para testes
 void Imprime(Lista *l){
     if(Vazia(l))
         printf("\nLista vazia.");
