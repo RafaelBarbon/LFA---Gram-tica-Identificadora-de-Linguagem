@@ -23,22 +23,22 @@ void Insere(Lista **l, char *v){
         printf("Erro: armazenamento insuficiente para alocar");
         exit(1);
     }
-    novo->string = malloc((strlen(v)+1)*sizeof(char));
+    novo->string = malloc((strlen(v)+1)*sizeof(char)); // strlen(v)+1 considera-se o \0 além dos caracteres
     if(!novo->string){
         printf("Erro: armazenamento insuficiente para alocar");
         exit(1);
     }
     strcpy(novo->string,v);
-    if(!(*l)){
+    if(!(*l)){ // Caso seja o primeiro elemento da lista
         novo->prox = NULL;
         *l = novo;
     }
     else{
-        while(aux->prox != NULL){
+        while(aux->prox != NULL){ // Avança o ponteiro até o último elemento da lista
             aux = aux->prox;
         }
         novo->prox = aux->prox;
-        aux->prox = novo;
+        aux->prox = novo; // Para adicionar o novo elemento à lista
     }
 }
 
@@ -81,7 +81,7 @@ void Imprime(Lista *l){
 // Desalocamento da lista
 void Libera(Lista **l){
     Lista *aux = (*l), *aux2;
-    while(aux != NULL){
+    while(aux != NULL){ // Inicia-se do início e libera a memória de cada nó
         aux2 = aux->prox;
         free(aux->string);
         free(aux);
