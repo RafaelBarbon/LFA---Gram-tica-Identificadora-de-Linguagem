@@ -3,5 +3,6 @@ main(){
     int henrique;
     printf(dievas);
     scanf(barbon);
+    james= nada;
 }
 

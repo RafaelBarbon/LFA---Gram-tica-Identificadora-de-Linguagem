@@ -3,6 +3,7 @@
 #include <stdlib.h>
 #include <stdbool.h>
 #include "lista.h"
+#include "pilha.h"
 
 // Função responsável por ler todo o arquivo e retornar uma lista com os símbolos encontrados
 Lista* monta_simbolo(FILE *arq);
@@ -35,6 +36,8 @@ int main(int argc, char **argv){
 // Função que verifica a lista de palavras de acordo com a gramática
 bool valida(Lista *simbolos){
     Lista *simbolo = simbolos;
+    Pilha *parenteses = CriaP();
+    bool flagOp = false; // Utilizada para intercalação entre num|id e op, abertura de parênteses e detecção de fechamento com op
     // Conferência do main(){
     if(simbolo && !(strcmp(simbolo->string,"main"))){
         simbolo = simbolo->prox;
@@ -86,20 +89,36 @@ bool valida(Lista *simbolos){
                 return false;
             }
         }else if(simbolo && !strcmp(simbolo->string,"id")){ // Caso seja uma expressão (,),+,-,*,/,id,num
-            //id=...;
-            // Criar pilha para considerar o balanceamento dos parênteses
             simbolo = simbolo->prox;
             if(simbolo && !strcmp(simbolo->string,"=")){
                 simbolo = simbolo->prox;
-                if(simbolo && (!strcmp(simbolo->string,"id")) || (!strcmp(simbolo->string,"num")) || (!strcmp(simbolo->string,"op"))){ // Confere se a próxima palavra é uma variável, número ou abre parênteses
-                    return false;
-                }
-                while(simbolo && strcmp(simbolo->string, ";")){
+                flagOp = false; // Flag para contar com que o próximo símbolo seja um operador (desconsiderando parênteses)
+                while(simbolo && strcmp(simbolo->string,";")){//Detecta expressão
+                    if(simbolo && (!strcmp(simbolo->string,"(")) && (!flagOp)){ // Verifica se não é do tipo "num ( op"
+                        Push(parenteses, '('); //joga na pilha
+                    }else if(simbolo && !strcmp(simbolo->string,")")){
+                        if(Pop(parenteses) == -1){ // Verifica se foi possível realizar o pop (caso nao a pilha esta vazia)
+                            LiberaP(&parenteses);
+                            return false;
+                        }
+                    }else if(simbolo && (!strcmp(simbolo->string,"num")||!strcmp(simbolo->string,"id")) && !flagOp){
+                         // Espera-se um operador aritmético no próximo símbolo
+                        flagOp = true;
+                    }else if(simbolo && (!strcmp(simbolo->string,"op")) && flagOp){
+                        // Já foi identificado um operador aritmético neste símbolo
+                        flagOp = false;
+                    }else{ // Caso seja um símbolo inválido para a expressão ou símbolo
+                        LiberaP(&parenteses);
+                        return false;
+                    }
                     simbolo = simbolo->prox;
                 }
-            }else
+                if(!VaziaP(parenteses) || !flagOp){ // Verifica o balanceamento dos parênteses e o fechamento com op
+                    LiberaP(&parenteses);
+                    return false;
+                }
+            }else // Se não houver "=" como segundo símbolo do comando
                 return false;
-            // ... => (,),op,id,num
         }else{ // Caso o comando inicie com um símbolo terminal, porém não válido para iniciar o comando
             return false;
         }
