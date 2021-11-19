@@ -46,13 +46,26 @@ bool valida(Lista *simbolos){
                 simbolo = simbolo->prox;
                 if(simbolo && !(strcmp(simbolo->string, "{"))){
                     simbolo = simbolo->prox;
-                }else return false;
-            }else return false;
-        }else return false;
-    }else return false;
-    // Conferência do corpo do programa (4 possibilidades de comandos - declaração de variáveis, coleta de valor de varíavel, exibição de valor de variável e atribuição de valor para variável)
+                }else{
+                    LiberaP(&parenteses);
+                    return false;
+                }
+            }else{
+                LiberaP(&parenteses);
+                return false;
+            }
+        }else{
+            LiberaP(&parenteses);
+            return false;
+        }
+    }else{
+        LiberaP(&parenteses);
+        return false;
+    }
+    //Conferência do corpo do programa (4 possibilidades de comandos - declaração de variáveis, coleta de valor de varíavel, exibição de valor de variável e atribuição de valor para variável)
     while(simbolo && strcmp(simbolo->string, "}") != 0){
         if(!strcmp(simbolo->string,"?")){ // Caso seja um símbolo não mapeado, já recusa o programa
+            LiberaP(&parenteses);
             return false;
         }else if(!strcmp(simbolo->string,"int")){ // Caso declaração de variáveis
             simbolo = simbolo->prox;
@@ -60,8 +73,10 @@ bool valida(Lista *simbolos){
                 simbolo = simbolo->prox;
                 if(simbolo && !strcmp(simbolo->string,",")){ // Confere se há uma próxima variável a partir da vírgula
                     simbolo = simbolo->prox;
-                    if(simbolo && !strcmp(simbolo->string,";")) // Verifica se termina sem o identificador (id,;)
+                    if(simbolo && !strcmp(simbolo->string,";")){ // Verifica se termina sem o identificador (id,;)
+                        LiberaP(&parenteses);
                         return false;
+                    }
                 }
             }
         }else if(!strcmp(simbolo->string,"printf") || !strcmp(simbolo->string,"scanf")){ // Caso seja impressão ou coleta de valor de variável
@@ -76,15 +91,19 @@ bool valida(Lista *simbolos){
                             simbolo = simbolo->prox;
                             continue;
                         }else{
+                            LiberaP(&parenteses);
                             return false;
                         }
                     }else{
+                        LiberaP(&parenteses);
                         return false;
                     }
                 }else{
+                    LiberaP(&parenteses);
                     return false;
                 }
             }else{
+                LiberaP(&parenteses);
                 return false;
             }
         }else if(simbolo && !strcmp(simbolo->string,"id")){ // Caso seja uma expressão (,),+,-,*,/,id,num
@@ -95,7 +114,7 @@ bool valida(Lista *simbolos){
                 while(simbolo && strcmp(simbolo->string,";")){//Detecta expressão
                     if(simbolo && (!strcmp(simbolo->string,"(")) && (!flagOp)){ // Verifica se não é do tipo "num ( op"
                         Push(parenteses, '('); //joga na pilha
-                    }else if(simbolo && !strcmp(simbolo->string,")")){
+                    }else if(simbolo && !strcmp(simbolo->string,")") && flagOp){
                         if(Pop(parenteses) == -1){ // Verifica se foi possível realizar o pop (caso nao a pilha esta vazia)
                             LiberaP(&parenteses);
                             return false;
@@ -116,20 +135,22 @@ bool valida(Lista *simbolos){
                     LiberaP(&parenteses);
                     return false;
                 }
-            }else // Se não houver "=" como segundo símbolo do comando
+            }else{ // Se não houver "=" como segundo símbolo do comando
+                LiberaP(&parenteses);
                 return false;
+            }
         }else{ // Caso o comando inicie com um símbolo terminal, porém não válido para iniciar o comando
+            LiberaP(&parenteses);
             return false;
         }
-        /*if(!simbolo){ // VERIFICAR NECESSIDADE DPS
-            return false;
-        }*/
         simbolo = simbolo->prox;
     }
-    if(simbolo && !strcmp(simbolo->string,"}"))
+    if(simbolo && !strcmp(simbolo->string,"}")){
+        LiberaP(&parenteses);
         return true;
-    else
-        return false;
+    }
+    LiberaP(&parenteses);
+    return false;
 }
 
 // Função responsável por ler todo o arquivo e retornar uma lista com os símbolos encontrados
@@ -203,5 +224,6 @@ Lista* monta_simbolo(FILE *arq){
         }
         flagTI = false;
     }
+    free(palavra);
     return l;
 }

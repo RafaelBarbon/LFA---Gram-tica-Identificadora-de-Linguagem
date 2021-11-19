@@ -1,3 +1,5 @@
+#ifndef _PILHA_H_
+#define _PILHA_H_
 #include <stdbool.h>
 #include <stdlib.h>
 
@@ -33,3 +35,4 @@ void ImprimeP(Pilha *p);
 
 // Desalocamento de memória da pilha
 void LiberaP(Pilha **p);
+#endif
