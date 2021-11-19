@@ -1,0 +1,18 @@
+main(){
+    int sartori, int, amigomeu;
+    int freitas, otimo;
+    printf(dievas);
+    scanf(barbon);
+    james = nadamain(){
+    int james, rafael;
+    int henrique;
+    printf(dievas);
+    scanf(barbon);
+    james = ;
+  
+    sartori = 6 + henrique * amigomeu;
+    printf(lfa);
+
+
+    
+}

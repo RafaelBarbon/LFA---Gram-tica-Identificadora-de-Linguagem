@@ -3,6 +3,10 @@ main(){
     int henrique;
     printf(dievas);
     scanf(barbon);
-    james= nada;
+    nada = (9 * (6 + (5 / (barbon * 9))));
+    james = nada;
+    fael = math + (num -(num / (silva * (0 + one)))) + comp;
+    freitas = 10;
+    nota = 11;
 }
 

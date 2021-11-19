@@ -25,9 +25,8 @@ int main(int argc, char **argv){
     }
     palavras = monta_simbolo(arq); // Lista de símbolos (referente a gramática) encontrados no arquivo
     //Imprime(palavras); // Para testes
-    printf("\n");
-    printf("%s", valida(palavras) ? "Aceito" : "Recusado");
-    printf("\n");
+    //printf("\n");
+    printf("%s\n", valida(palavras) ? "Aceito" : "Recusado");
     fclose(arq);
     Libera(&palavras);
     return 0;
